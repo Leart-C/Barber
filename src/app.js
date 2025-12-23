@@ -3,6 +3,7 @@ const appointmentsRoutes = require("./routes/appointments.routes");
 const logger = require("./middlewares/logger");
 const rateLimit = require("./middlewares/rateLimit");
 const generateSlots = require("./utils/slotGenerator");
+const authRoutes = require("./routes/auth.routes");
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(logger);
 app.use(rateLimit);
 app.use("/api/appointments", appointmentsRoutes);
 app.use("/api/closed-days", closedDayRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/health", (req, res) => {
   res.json({ status: "OK" });
