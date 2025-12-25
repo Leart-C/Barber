@@ -29,7 +29,7 @@ async function markDayAsClosed(req, res) {
       reason: reason || "No reason provided",
     });
   } catch (error) {
-    console.error("Error closing day:", err);
+    console.error("Error closing day:", error);
     res.status(500).json({
       error: "Internal server error",
     });
@@ -57,7 +57,7 @@ async function checkIfClosed(req, res) {
         : "Berberi është i hapur këtë ditë",
     });
   } catch (error) {
-    console.error("Error checking closed day:", err);
+    console.error("Error checking closed day:", error);
     res.status(500).json({
       error: "Internal server error",
     });

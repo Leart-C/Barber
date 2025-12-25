@@ -46,7 +46,7 @@ async function bookAppointment(req, res) {
 
 async function availableSlots(req, res) {
   try {
-    const { date } = req.body;
+    const { date } = req.query;
 
     if (!date) {
       return res.status(400).json({
@@ -66,7 +66,7 @@ async function availableSlots(req, res) {
       count: result.slots.length,
     });
   } catch (error) {
-    console.error("Error fetching available slots:", err);
+    console.error("Error fetching available slots:", error);
     res.status(500).json({
       error: "Internal server error",
     });

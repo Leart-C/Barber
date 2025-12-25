@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const {
-  markDayAsClosed,
+  closeDayController,
   checkIfClosed,
 } = require("../controllers/closedDays.controller");
+const requireAuth = require("../middlewares/requireAuth");
+const requireBarber = require("../middlewares/requireBarber");
 
-router.post("/", markDayAsClosed);
-
+router.post("/", requireAuth, requireBarber, closeDayController);
 router.get("/check", checkIfClosed);
 
 module.exports = router;

@@ -1,34 +1,28 @@
 const pool = require("../db");
 const jwt = require("jsonwebtoken");
+const { generateRefreshToken } = require("../utils/token");
 
-async function saveRefreshToken(userId, token, expiresAt) {
-  await pool.query(
-    `INSERT INTO refresh_tokens (user_id,token,expires_at) VALUES ($1,$2,$3)`,
-    [userId, token, expiresAt]
+async function refresh(token) {
+  const payload = await validateRefreshToken(token);
+  if (!payload) throw new Error("INVALID_REFRESH_TOKEN");
+
+  await revokeRefreshToken(token);
+
+  const newAccessToken = generateAccessToken({ userId: payload.userId });
+  const newRefreshToken = generateRefreshToken({ userId: payload.userId });
+
+  await saveRefreshToken(
+    payload.userId,
+    newRefreshToken,
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
   );
-}
 
-async function validateRefreshToken(token) {
-  const result = await pool.query(
-    `SELECT * FROM refresh_tokens WHERE token = $1`,
-    [token]
-  );
-
-  if (result.rows.length === 0) return null;
-
-  try {
-    return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-  } catch {
-    return null;
-  }
-}
-
-async function revokeRefreshToken(token) {
-  await pool.query(`DELETE FROM refresh_tokens WHERE token = $1`, [token]);
+  return {
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+  };
 }
 
 module.exports = {
-  saveRefreshToken,
-  validateRefreshToken,
-  revokeRefreshToken,
+  refresh,
 };

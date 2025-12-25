@@ -1,11 +1,13 @@
 const pool = require("../db");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const tokenUtils = require("../utils/token");
+const refreshTokenService = require("./refreshToken.service");
 
 async function login(email, password) {
-  const result = await pool.query("SELECT * FROM users WHERE email = $1", [
-    email,
-  ]);
+  const result = await pool.query(
+    "SELECT id, email, password_hash, role FROM users WHERE email = $1",
+    [email]
+  );
 
   if (result.rowCount === 0) {
     throw new Error("INVALID_CREDENTIALS");
@@ -18,13 +20,25 @@ async function login(email, password) {
     throw new Error("INVALID_CREDENTIALS");
   }
 
-  const token = jwt.sign(
-    { userId: user.id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIN: "1h" }
+  const accessToken = tokenUtils.generateAccessToken({
+    userId: user.id,
+    role: user.role,
+  });
+
+  const refreshToken = tokenUtils.generateRefreshToken({
+    userId: user.id,
+  });
+
+  await refreshTokenService.saveRefreshToken(
+    user.id,
+    refreshToken,
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
   );
 
-  return token;
+  return {
+    accessToken,
+    refreshToken,
+  };
 }
 
 module.exports = { login };
