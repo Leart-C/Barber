@@ -1,20 +1,30 @@
-const bookingService = require("../services/booking.service");
+const { getBookingsByUserId } = require("../services/booking.service");
 
-async function getMyBookings(req, res, next) {
+async function getMyBookings(req, res) {
   try {
-    const { name } = req.query;
+    const userId = req.user.userId;
 
-    if (!name) {
-      return res.status(400).json({
-        message: "Kerkohet emri i klientit",
-      });
-    }
+    const bookings = await getBookingsByUserId(userId);
 
-    const bookings = await bookingService.getBookingsByClientName(name);
-
-    return res.json({ success: true, count: bookings.length, bookings });
+    res.json({
+      success: true,
+      userId,
+      count: bookings.length,
+      bookings: bookings.map((booking) => ({
+        id: booking.id,
+        date: booking.date,
+        time: booking.slot_time.slice(0, 5), // "09:00:00" → "09:00"
+        clientName: booking.client_name,
+        status: booking.status,
+        createdAt: booking.created_at,
+      })),
+    });
   } catch (error) {
-    next(error);
+    console.error("Error fetching my bookings:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      message: "Nuk arritëm të marrim rezervimet tuaja",
+    });
   }
 }
 

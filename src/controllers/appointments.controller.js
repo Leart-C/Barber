@@ -4,6 +4,7 @@ const { createAppointment } = require("../services/appointments.service");
 async function bookAppointment(req, res) {
   try {
     const { date, slot, clientName } = req.body;
+    const userId = req.user.userId;
 
     if (!date || !slot || !clientName) {
       return res.status(400).json({
@@ -12,20 +13,28 @@ async function bookAppointment(req, res) {
       });
     }
 
-    const appointment = await createAppointment({ date, slot, clientName });
+    const appointment = await createAppointment({
+      date,
+      slot,
+      clientName,
+      userId,
+    });
 
     res.status(201).json({
       success: true,
       message: "Appointment booked successfully",
-      appointmentId: appointment.id,
-      date,
-      slot,
-      clientName,
+      appointment: {
+        id: appointment.id,
+        date: appointment.date,
+        time: appointment.slot_time.slice(0, 5),
+        clientName: appointment.client_name,
+        status: appointment.status,
+      },
     });
   } catch (err) {
     if (err.message === "SLOT_TAKEN") {
       return res.status(409).json({
-        error: "Slot already booked",
+        error: "Termini vecse eshte nxene",
         message: "Ky slot është marrë tashmë. Ju lutem zgjidhni një tjetër.",
       });
     }

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const requireAuth = require("../middlewares/auth");
 const {
   availableSlots,
   bookAppointment,
@@ -7,6 +8,6 @@ const {
 
 router.get("/available", availableSlots);
 
-router.post("/book", bookAppointment);
+router.post("/book", requireAuth, bookAppointment);
 
 module.exports = router;
