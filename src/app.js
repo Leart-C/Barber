@@ -5,6 +5,7 @@ const rateLimit = require("./middlewares/rateLimit");
 const appointmentsRoutes = require("./routes/appointments.routes");
 const closedDayRoutes = require("./routes/closedDays.routes");
 const authRoutes = require("./routes/auth.routes");
+const bookingRoutes = require("./routes/bookings.routes");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(rateLimit);
 app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentsRoutes);
 app.use("/api/closed-days", closedDayRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 app.get("/health", (req, res) => {
   res.json({ status: "OK" });

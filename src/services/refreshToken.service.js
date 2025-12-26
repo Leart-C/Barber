@@ -1,5 +1,3 @@
-const pool = require("../db");
-const jwt = require("jsonwebtoken");
 const { generateRefreshToken } = require("../utils/token");
 
 async function refresh(token) {

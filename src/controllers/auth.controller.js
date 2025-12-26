@@ -16,6 +16,7 @@ async function loginController(req, res, next) {
       success: true,
       token,
     });
+    next();
   } catch (error) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
@@ -32,4 +33,4 @@ async function refreshTokenController(req, res) {
   res.json(tokens);
 }
 
-module.exports = { loginController, refreshToken };
+module.exports = { loginController, refreshTokenController };
